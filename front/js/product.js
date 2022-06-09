@@ -8,6 +8,20 @@ async function products(elementId) {
         (res) => res.json()
     );
 }
+function listpanier(paramProduct) {
+    const panier = JSON.parse(localStorage.getItem("produits"));
+
+    for (let i = 0; i < panier.length; i++) {
+        if (
+            panier[i].id === paramProduct.id &&
+            panier[i].colors === paramProduct.colors
+        ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 async function pageProduct() {
     const productDescript = await products(elementId);
 
@@ -35,28 +49,41 @@ async function pageProduct() {
 
     let button = document.querySelector("button");
     button.addEventListener("click", function (e) {
-        console.log("hello");
-
         let quantity = document.querySelector("#quantity");
-        console.log(quantity);
 
         let input = quantity.value;
-        console.log(input);
 
         let color = colors.value;
-
-        console.log(color);
 
         let paramProduct = {
             colors: color,
             quantity: input,
             image: productDescript.imageUrl,
             id: productDescript._id,
+            altTxt: productDescript.altTxt,
+            name: productDescript.name,
+            price: productDescript.price,
         };
-        console.log(paramProduct);
 
-        let arrayProduct = new Array();
-        const panier = JSON.parse(localStorage.getItem("produits"));
+        // une déclaration d'une variable
+        let panier;
+
+        // affectation de variable
+        if (localStorage.getItem("produits") === null) {
+            panier = new Array();
+            panier.push(paramProduct);
+            localStorage.setItem("produits", JSON.stringify(panier));
+        } else {
+            panier = JSON.parse(localStorage.getItem("produits"));
+            if (listpanier(paramProduct) === -1) {
+                panier.push(paramProduct);
+            } else {
+                let i = listpanier(paramProduct);
+                panier[i].quantity =
+                    Number(paramProduct.quantity) + Number(panier[i].quantity);
+            }
+            localStorage.setItem("produits", JSON.stringify(panier));
+        }
 
         /// si dans localstorage produit existe avec (meme id + meme couleur) ne pas dupliquer
         /// panier = tableau de produit
@@ -67,21 +94,8 @@ async function pageProduct() {
         /// produit avec mm id + mm couleur = le modifier
         /// sinon panier existe pas
         /// creer panier et ajouter le produit
-
-        if (panier) {
-            console.log("sheesh");
-            panier.push(paramProduct);
-            localStorage.setItem("produits", JSON.stringify(panier));
-            for (let i = 0; i < panier.length; i++) {
-                //const paramProduct2 = paramProduct;
-                //const producttt= tableau[]
-            }
-        } else {
-            arrayProduct.push(paramProduct);
-            localStorage.setItem("produits", JSON.stringify(arrayProduct));
-        }
     });
-
     console.log(productDescript);
 }
+
 pageProduct();
