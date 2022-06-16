@@ -8,6 +8,7 @@ async function products(elementId) {
         (res) => res.json()
     );
 }
+
 function listpanier(paramProduct) {
     const panier = JSON.parse(localStorage.getItem("produits"));
 

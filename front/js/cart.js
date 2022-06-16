@@ -1,16 +1,64 @@
 let panier = JSON.parse(localStorage.getItem("produits"));
 console.log(panier);
 
+/**
+ *
+ *
+ */
+function totalQuantity() {
+    let result = 0;
+    let totalQty = document.querySelector("#totalQuantity");
+    for (i = 0; i < panier.length; i++) {
+        result = result + Number(panier[i].quantity);
+        totalQty.innerText = result;
+    }
+}
+/// fonction permettant de calculer le nbr total de produit
+/// total = addition de produit.quantity
+/// fonction permettant de calculer le prix total
+function totalPrice() {
+    let result = 0;
+    let totalPrc = document.querySelector("#totalPrice");
+    for (i = 0; i < panier.length; i++) {
+        result = result + Number(panier[i].quantity) * panier[i].price;
+        totalPrc.innerText = result;
+    }
+}
+
+/// fonction permettant de mettre à jour la quantité
+function updateQuantity() {
+    let updateQty = document.querySelectorAll(".itemQuantity");
+    updateQty.forEach((element) => {
+        element.addEventListener("change", (e) => {
+            let updateElement = e.target.closest(".cart__item");
+            let DOMquantity = updateElement.querySelector(
+                ".cart__item__content__settings__quantity p"
+            );
+            DOMquantity.innerText = "Qté : " + e.target.value;
+            panier.filter((produit) => {
+                if (
+                    produit.id === updateElement.dataset.id &&
+                    produit.colors === updateElement.dataset.color
+                ) {
+                    produit.quantity = e.target.value;
+                    localStorage.setItem("produits", JSON.stringify(panier));
+                    totalQuantity();
+                    totalPrice();
+                }
+            });
+        });
+    });
+}
+
 function affichageproduit() {
     let cart__items = document.querySelector("#cart__items");
 
     for (i = 0; i < panier.length; i++) {
         let produit = panier[i];
-        console.log(produit);
         let article = document.createElement("article");
         article.setAttribute("class", "cart__item");
         article.setAttribute("data-id", produit.id);
-        article.setAttribute("data-color", produit.color);
+        article.setAttribute("data-color", produit.colors);
         cart__items.appendChild(article);
 
         let cart__item__img = document.createElement("div");
@@ -55,6 +103,7 @@ function affichageproduit() {
             cart__item__content__settings__quantity
         );
         let quantity = document.createElement("p");
+        quantity.innerText = "Qté : " + produit.quantity;
         cart__item__content__settings__quantity.appendChild(quantity);
         let input = document.createElement("input");
         cart__item__content__settings__quantity.appendChild(input);
@@ -76,12 +125,46 @@ function affichageproduit() {
         deleteItem.setAttribute("class", "deleteItem");
         cart__item__content__settings__delete.appendChild(deleteItem);
         deleteItem.innerText = "Supprimer";
+
+        let buttomSupp = document.querySelectorAll(".deleteItem");
+        buttomSupp.forEach((element) => {
+            element.addEventListener("click", (e) => {
+                let elementDelete = e.target.closest(".cart__item");
+                elementDelete.remove();
+                // modifier le code
+                panier.filter((element) => {
+                    if (
+                        element.id === elementDelete.dataset.id &&
+                        element.colors === elementDelete.dataset.color
+                    ) {
+                        let deletePro = panier.indexOf(element);
+                        panier.splice(deletePro, 1);
+                        localStorage.setItem(
+                            "produits",
+                            JSON.stringify(panier)
+                        );
+                        totalQuantity();
+                        totalPrice();
+                    }
+                });
+                // modifier le code
+                console.log(elementDelete.dataset.id);
+            });
+        });
     }
 }
-/// fonction permettant de calculer le nbr total de produit
-function totalQuantity() {
-    let result = 0;
-    for (i = 0; i < panier.length; i++) {}
-}
-/// fonction permettant de calculer le prix total
 affichageproduit();
+
+totalQuantity();
+
+totalPrice();
+
+updateQuantity();
+
+function getcontact() {
+    let form = document.querySelector(".cart__order__form");
+    form.addEventListener("submit", () => {
+        console.log("texxxxt");
+    });
+}
+getcontact();
