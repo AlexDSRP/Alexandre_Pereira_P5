@@ -1,28 +1,24 @@
 let panier = JSON.parse(localStorage.getItem("produits"));
 console.log(panier);
 
-/**
- *
- *
- */
+/// fonction permettant de calculer le nbr total de produit
+/// total = addition de produit.quantity
 function totalQuantity() {
     let result = 0;
     let totalQty = document.querySelector("#totalQuantity");
     for (i = 0; i < panier.length; i++) {
         result = result + Number(panier[i].quantity);
-        totalQty.innerText = result;
     }
+    totalQty.innerText = result;
 }
-/// fonction permettant de calculer le nbr total de produit
-/// total = addition de produit.quantity
+
 /// fonction permettant de calculer le prix total
 function totalPrice() {
     let result = 0;
-    let totalPrc = document.querySelector("#totalPrice");
     for (i = 0; i < panier.length; i++) {
         result = result + Number(panier[i].quantity) * panier[i].price;
-        totalPrc.innerText = result;
     }
+    document.querySelector("#totalPrice").innerText = result;
 }
 
 /// fonction permettant de mettre à jour la quantité
