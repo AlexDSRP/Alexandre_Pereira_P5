@@ -157,10 +157,50 @@ totalPrice();
 
 updateQuantity();
 
-function getcontact() {
+/// fonction creant le formulaire
+function contact() {
+    let getContact = {
+        firstName: document.querySelector("#firstName").value,
+        lastName: document.querySelector("#lastName").value,
+        address: document.querySelector("#address").value,
+        city: document.querySelector("#city").value,
+        email: document.querySelector("#email").value,
+    };
+
+    let panier = JSON.parse(localStorage.getItem("produits"));
+    let products = [];
+    for (i = 0; i < panier.length; i++) {
+        products.push(panier[i].id);
+    }
+
+    let order = { contact: getContact, products: products };
+
+    fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        headers: {
+            Accept: "application/json",
+            "Content-type": "application/json",
+        },
+        body: JSON.stringify(order),
+    })
+        .then(function (res) {
+            if (res.ok) {
+                return res.json();
+            }
+        })
+        .then((res) => {
+            localStorage.clear();
+            localStorage.setItem("produits", JSON.stringify([]));
+            window.location.href =
+                "http://127.0.0.1:5500/front/html/confirmation.html?id=" +
+                res.orderId;
+        })
+        .catch((error) => console.error(error));
+}
+function submit() {
     let form = document.querySelector(".cart__order__form");
-    form.addEventListener("submit", () => {
-        console.log("texxxxt");
+    form.addEventListener("submit", (e) => {
+        contact();
     });
 }
-getcontact();
+submit();
