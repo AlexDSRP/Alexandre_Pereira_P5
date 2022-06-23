@@ -49,12 +49,24 @@ async function pageProduct() {
     }
 
     let button = document.querySelector("button");
+    let quantity = document.querySelector("#quantity");
+
+    quantity.addEventListener("input", function (e) {
+        // si input quantity = inferieur 0 changer valeur et mettre innerText"1"
+        // si input quantity = superieur 100 changer valeur et mettre innerText "1"
+        console.log(e.target.value);
+        if (
+            e.target.value === 0 ||
+            e.target.value <= 0 ||
+            e.target.value > 100
+        ) {
+            e.target.value = 1;
+        }
+    });
     button.addEventListener("click", function (e) {
-        let quantity = document.querySelector("#quantity");
+        let color = colors.value;
 
         let input = quantity.value;
-
-        let color = colors.value;
 
         let paramProduct = {
             colors: color,
@@ -69,6 +81,11 @@ async function pageProduct() {
         // une déclaration d'une variable
         let panier;
 
+        // si input quantity = 0 alors afficher alert "ajouter une quantité" et
+        // si color = ""  alert ajouter une couleur
+        if (input == 0 || color == "") {
+            alert("merci d'ajouter une quantité et une couleur");
+        }
         // affectation de variable
         if (localStorage.getItem("produits") === null) {
             panier = new Array();

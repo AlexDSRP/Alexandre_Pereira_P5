@@ -158,23 +158,7 @@ totalPrice();
 updateQuantity();
 
 /// fonction creant le formulaire
-function contact() {
-    let getContact = {
-        firstName: document.querySelector("#firstName").value,
-        lastName: document.querySelector("#lastName").value,
-        address: document.querySelector("#address").value,
-        city: document.querySelector("#city").value,
-        email: document.querySelector("#email").value,
-    };
-
-    let panier = JSON.parse(localStorage.getItem("produits"));
-    let products = [];
-    for (i = 0; i < panier.length; i++) {
-        products.push(panier[i].id);
-    }
-
-    let order = { contact: getContact, products: products };
-
+function contact(order) {
     fetch("http://localhost:3000/api/products/order", {
         method: "POST",
         headers: {
@@ -199,8 +183,51 @@ function contact() {
 }
 function submit() {
     let form = document.querySelector(".cart__order__form");
+
     form.addEventListener("submit", (e) => {
-        contact();
+        //Eviter de rafraichir la page
+        e.preventDefault();
+
+        // Création des Regex
+        let onlyText = new RegExp(/^\D+$/);
+        let adressReg = new RegExp(/./);
+        let emailReg = new RegExp(/^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/);
+
+        let getContact = {
+            firstName: document.querySelector("#firstName").value,
+            lastName: document.querySelector("#lastName").value,
+            address: document.querySelector("#address").value,
+            city: document.querySelector("#city").value,
+            email: document.querySelector("#email").value,
+        };
+
+        console.log(
+            onlyText.test(getContact.firstName),
+            adressReg.test(getContact.address),
+            emailReg.test(getContact.email),
+            onlyText.test(getContact.lastName),
+            onlyText.test(getContact.city)
+        );
+        let panier = JSON.parse(localStorage.getItem("produits"));
+        let products = [];
+        for (i = 0; i < panier.length; i++) {
+            products.push(panier[i].id);
+        }
+
+        let order = { contact: getContact, products: products };
+
+        //Créer la condition pour valider le formulaire
+        if (
+            onlyText.test(getContact.firstName) &&
+            onlyText.test(getContact.lastName) &&
+            onlyText.test(getContact.city) &&
+            adressReg.test(getContact.address) &&
+            emailReg.test(getContact.email)
+        ) {
+            contact(order);
+        } else {
+            alert("Veuillez modifier le texte");
+        }
     });
 }
 submit();
