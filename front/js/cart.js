@@ -1,5 +1,12 @@
 let panier = JSON.parse(localStorage.getItem("produits"));
-console.log(panier);
+
+async function getProduct(produit) {
+    //le produit doit venir du fetch et pas localstorage
+
+    return await fetch("http://localhost:3000/api/products/" + produit).then(
+        (res) => res.json()
+    );
+}
 
 /// fonction permettant de calculer le nbr total de produit
 /// total = addition de produit.quantity
@@ -14,11 +21,16 @@ function totalQuantity() {
 
 /// fonction permettant de calculer le prix total
 function totalPrice() {
-    let result = 0;
-    for (i = 0; i < panier.length; i++) {
-        result = result + Number(panier[i].quantity) * panier[i].price;
+    let total = 0;
+    let priceDisplay = document.querySelector("#totalPrice");
+    if (panier.length === 0) {
+        priceDisplay.innerText = 0;
     }
-    document.querySelector("#totalPrice").innerText = result;
+    panier.forEach(async (element) => {
+        const elementPrice = (await getProduct(element.id)).price;
+        total = total + elementPrice * Number(element.quantity);
+        priceDisplay.innerText = total;
+    });
 }
 
 /// fonction permettant de mettre à jour la quantité
@@ -46,11 +58,22 @@ function updateQuantity() {
     });
 }
 
-function affichageproduit() {
+// cette fonction permet d'afficher les produits sur la page panier
+function afficherproduit() {
     let cart__items = document.querySelector("#cart__items");
 
-    for (i = 0; i < panier.length; i++) {
-        let produit = panier[i];
+    panier.sort((a, b) => {
+        if (a.name > b.name) {
+            return 1;
+        }
+        if (a.name < b.name) {
+            return -1;
+        }
+    });
+
+    panier.forEach(async (produit) => {
+        let productPrice = (await getProduct(produit.id)).price;
+
         let article = document.createElement("article");
         article.setAttribute("class", "cart__item");
         article.setAttribute("data-id", produit.id);
@@ -79,7 +102,7 @@ function affichageproduit() {
         let color = document.createElement("p");
         color.innerText = produit.colors;
         let price = document.createElement("p");
-        price.innerText = produit.price + " " + "€";
+        price.innerText = productPrice + " " + "€";
         cart__item__content__description.append(title, color, price);
 
         let cart__item__content__settings = document.createElement("div");
@@ -122,12 +145,15 @@ function affichageproduit() {
         cart__item__content__settings__delete.appendChild(deleteItem);
         deleteItem.innerText = "Supprimer";
 
+        updateQuantity();
+
+        // fonction permettant de supprimer un produit
         let buttomSupp = document.querySelectorAll(".deleteItem");
         buttomSupp.forEach((element) => {
             element.addEventListener("click", (e) => {
                 let elementDelete = e.target.closest(".cart__item");
                 elementDelete.remove();
-                // modifier le code
+
                 panier.filter((element) => {
                     if (
                         element.id === elementDelete.dataset.id &&
@@ -139,26 +165,27 @@ function affichageproduit() {
                             "produits",
                             JSON.stringify(panier)
                         );
-                        totalQuantity();
-                        totalPrice();
                     }
+                    totalQuantity();
+                    totalPrice();
                 });
-                // modifier le code
-                console.log(elementDelete.dataset.id);
             });
         });
-    }
+    });
 }
-affichageproduit();
-
-totalQuantity();
+afficherproduit();
 
 totalPrice();
 
-updateQuantity();
+totalQuantity();
+
+//fonction permettant de valider le formulaire
+function isFormValid(regEx, value) {
+    return regEx.test(value);
+}
 
 /// fonction creant le formulaire
-function contact(order) {
+function sendOrder(order) {
     fetch("http://localhost:3000/api/products/order", {
         method: "POST",
         headers: {
@@ -181,17 +208,13 @@ function contact(order) {
         })
         .catch((error) => console.error(error));
 }
+// fonction permettant d'envoyer la commande
 function submit() {
     let form = document.querySelector(".cart__order__form");
 
     form.addEventListener("submit", (e) => {
         //Eviter de rafraichir la page
         e.preventDefault();
-
-        // Création des Regex
-        let onlyText = new RegExp(/^\D+$/);
-        let adressReg = new RegExp(/./);
-        let emailReg = new RegExp(/^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/);
 
         let getContact = {
             firstName: document.querySelector("#firstName").value,
@@ -201,13 +224,6 @@ function submit() {
             email: document.querySelector("#email").value,
         };
 
-        console.log(
-            onlyText.test(getContact.firstName),
-            adressReg.test(getContact.address),
-            emailReg.test(getContact.email),
-            onlyText.test(getContact.lastName),
-            onlyText.test(getContact.city)
-        );
         let panier = JSON.parse(localStorage.getItem("produits"));
         let products = [];
         for (i = 0; i < panier.length; i++) {
@@ -216,17 +232,41 @@ function submit() {
 
         let order = { contact: getContact, products: products };
 
+        // Création des Regex
+        let onlyText = new RegExp(/^\D+$/);
+        let adressReg = new RegExp(/./);
+        let emailReg = new RegExp(/^[\w-.]+@([\w-]+.)+[\w-]{2,4}$/);
+
         //Créer la condition pour valider le formulaire
+        if (!isFormValid(onlyText, getContact.firstName)) {
+            document.getElementById("firstNameErrorMsg").innerText =
+                "Prénom invalide";
+        }
+
+        if (!isFormValid(onlyText, getContact.lastName)) {
+            document.getElementById("lastNameErrorMsg").innerText =
+                "Nom invalide";
+        }
+        if (!isFormValid(adressReg, getContact.address)) {
+            document.getElementById("addressErrorMsg").innerText =
+                "Adresse invalide";
+        }
+        if (!isFormValid(onlyText, getContact.city)) {
+            document.getElementById("cityErrorMsg").innerText =
+                "Ville invalide";
+        }
+        if (!isFormValid(emailReg, getContact.email)) {
+            document.getElementById("emailErrorMsg").innerText =
+                "Email Invalide";
+        }
         if (
-            onlyText.test(getContact.firstName) &&
-            onlyText.test(getContact.lastName) &&
-            onlyText.test(getContact.city) &&
-            adressReg.test(getContact.address) &&
-            emailReg.test(getContact.email)
+            isFormValid(onlyText, getContact.firstName) &&
+            isFormValid(onlyText, getContact.lastName) &&
+            isFormValid(adressReg, getContact.address) &&
+            isFormValid(onlyText, getContact.city) &&
+            isFormValid(emailReg, getContact.email)
         ) {
-            contact(order);
-        } else {
-            alert("Veuillez modifier le texte");
+            sendOrder(order);
         }
     });
 }

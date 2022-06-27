@@ -1,7 +1,6 @@
 let url = window.location.search;
 let urlParams = new URLSearchParams(url);
 let elementId = urlParams.get("canapId");
-console.log(elementId);
 
 async function products(elementId) {
     return await fetch(`http://localhost:3000/api/products/${elementId}`).then(
@@ -9,7 +8,8 @@ async function products(elementId) {
     );
 }
 
-function listpanier(paramProduct) {
+//fonction permmetant de verifier si un produit à la même couleur et même id
+function verifPanier(paramProduct) {
     const panier = JSON.parse(localStorage.getItem("produits"));
 
     for (let i = 0; i < panier.length; i++) {
@@ -54,7 +54,6 @@ async function pageProduct() {
     quantity.addEventListener("input", function (e) {
         // si input quantity = inferieur 0 changer valeur et mettre innerText"1"
         // si input quantity = superieur 100 changer valeur et mettre innerText "1"
-        console.log(e.target.value);
         if (
             e.target.value === 0 ||
             e.target.value <= 0 ||
@@ -75,7 +74,6 @@ async function pageProduct() {
             id: productDescript._id,
             altTxt: productDescript.altTxt,
             name: productDescript.name,
-            price: productDescript.price,
         };
 
         // une déclaration d'une variable
@@ -93,10 +91,10 @@ async function pageProduct() {
             localStorage.setItem("produits", JSON.stringify(panier));
         } else {
             panier = JSON.parse(localStorage.getItem("produits"));
-            if (listpanier(paramProduct) === -1) {
+            if (verifPanier(paramProduct) === -1) {
                 panier.push(paramProduct);
             } else {
-                let i = listpanier(paramProduct);
+                let i = verifPanier(paramProduct);
                 panier[i].quantity =
                     Number(paramProduct.quantity) + Number(panier[i].quantity);
             }
@@ -113,7 +111,6 @@ async function pageProduct() {
         /// sinon panier existe pas
         /// creer panier et ajouter le produit
     });
-    console.log(productDescript);
 }
 
 pageProduct();

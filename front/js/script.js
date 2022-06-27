@@ -6,7 +6,6 @@ fetch("http://localhost:3000/api/products")
         }
     })
     .then(function (value) {
-        console.log(value);
         tableau = value;
         for (let i = 0; i < value.length; i++) {
             let sectionItems = document.getElementById("items");
@@ -24,5 +23,6 @@ fetch("http://localhost:3000/api/products")
         }
     })
     .catch(function (err) {
+        console.log(err);
         // Une erreur est survenue
     });
