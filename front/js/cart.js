@@ -62,6 +62,7 @@ function updateQuantity() {
 function afficherproduit() {
     let cart__items = document.querySelector("#cart__items");
 
+    // ceci nous permet de trier le panier par ordre alphabétique
     panier.sort((a, b) => {
         if (a.name > b.name) {
             return 1;
@@ -144,6 +145,22 @@ function afficherproduit() {
         deleteItem.setAttribute("class", "deleteItem");
         cart__item__content__settings__delete.appendChild(deleteItem);
         deleteItem.innerText = "Supprimer";
+
+        // variable me permettant de min max la qty
+        let inputQuantity = document.querySelectorAll(".itemQuantity");
+        inputQuantity.forEach((element) => {
+            element.addEventListener("input", function (e) {
+                // si input quantity = inferieur 0 changer valeur et mettre innerText"1"
+                // si input quantity = superieur 100 changer valeur et mettre innerText "1"
+                if (
+                    e.target.value === 0 ||
+                    e.target.value <= 0 ||
+                    e.target.value > 100
+                ) {
+                    e.target.value = 1;
+                }
+            });
+        });
 
         updateQuantity();
 

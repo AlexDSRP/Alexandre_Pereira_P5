@@ -15,11 +15,23 @@ fetch("http://localhost:3000/api/products")
                 `product.html?canapId=${value[i]._id}`
             );
             sectionItems.appendChild(createProduct);
-            createProduct.innerHTML = `<article>
-          <img src="${value[i].imageUrl}" alt="${value[i].altTxt}">
-          <h3 class="productName">${value[i].name}</h3>
-          <p class="productDescription">${value[i].description}</p>
-          </article>`;
+            let article = document.createElement("article");
+            createProduct.appendChild(article);
+
+            let img = document.createElement("img");
+            img.setAttribute("src", value[i].imageUrl);
+            img.setAttribute("alt", value[i].altTxt);
+            article.appendChild(img);
+
+            let productName = document.createElement("h3");
+            productName.setAttribute("class", "productName");
+            productName.innerText = value[i].name;
+            article.appendChild(productName);
+
+            let productDescript = document.createElement("p");
+            productDescript.setAttribute("class", "productDescription");
+            productDescript.innerText = value[i].description;
+            article.appendChild(productDescript);
         }
     })
     .catch(function (err) {

@@ -62,6 +62,7 @@ async function pageProduct() {
             e.target.value = 1;
         }
     });
+
     button.addEventListener("click", function (e) {
         let color = colors.value;
 
@@ -76,29 +77,30 @@ async function pageProduct() {
             name: productDescript.name,
         };
 
-        // une déclaration d'une variable
+        // déclaration d'une variable
         let panier;
 
         // si input quantity = 0 alors afficher alert "ajouter une quantité" et
         // si color = ""  alert ajouter une couleur
         if (input == 0 || color == "") {
             alert("merci d'ajouter une quantité et une couleur");
-        }
-        // affectation de variable
-        if (localStorage.getItem("produits") === null) {
-            panier = new Array();
-            panier.push(paramProduct);
-            localStorage.setItem("produits", JSON.stringify(panier));
         } else {
-            panier = JSON.parse(localStorage.getItem("produits"));
-            if (verifPanier(paramProduct) === -1) {
+            if (localStorage.getItem("produits") === null) {
+                panier = new Array();
                 panier.push(paramProduct);
+                localStorage.setItem("produits", JSON.stringify(panier));
             } else {
-                let i = verifPanier(paramProduct);
-                panier[i].quantity =
-                    Number(paramProduct.quantity) + Number(panier[i].quantity);
+                panier = JSON.parse(localStorage.getItem("produits"));
+                if (verifPanier(paramProduct) === -1) {
+                    panier.push(paramProduct);
+                } else {
+                    let i = verifPanier(paramProduct);
+                    panier[i].quantity =
+                        Number(paramProduct.quantity) +
+                        Number(panier[i].quantity);
+                }
+                localStorage.setItem("produits", JSON.stringify(panier));
             }
-            localStorage.setItem("produits", JSON.stringify(panier));
         }
 
         /// si dans localstorage produit existe avec (meme id + meme couleur) ne pas dupliquer
